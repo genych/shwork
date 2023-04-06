@@ -1,39 +1,76 @@
 // ==UserScript==
 // @name         workshop downloader
 // @namespace    gnch
-// @version      0.1
-// @description  weird way to download workshop items in bulk
+// @version      0.2
+// @description  weird way to download specific workshop items in bulk
 // @author       genych
-// @match        https://steamcommunity.com/workshop/*
+// @match        https://steamcommunity.com/*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=steamcommunity.com
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 (function() {
     'use strict';
-    let header = document.getElementsByClassName('subscribeCollection')[0];
-    let collection = Array.from(document.getElementsByClassName('collectionItemDetails'));
-    let func = x => x.getElementsByTagName('a')[0].attributes.href.nodeValue.replace(/^.*id=/,'');
-    let ids = collection.map(func);
+    const get_anch = x => x.querySelector('a.item_link') || x.getElementsByTagName('a')[0];
+    const get_id = x => x.attributes.href.nodeValue.replace(/^.*id=/,'').replace(/\D+/, '');
+
+    let header = document.querySelectorAll(':is(.workshopItemDescriptionTitle, .game_area_purchase_margin)');
+    header = header.item(header.length - 1);
+    let collection = document.querySelectorAll(':is(.collectionItemDetails, .workshopItem)');
+
+    let items = [];
+    for (let c of collection) {
+        let a = get_anch(c);
+        let name = a.innerText;
+        let id = get_id(a);
+        let pair = {id, name};
+        items.push(pair);
+
+        let button = document.createElement('button');
+        c.append(button);
+        button.innerHTML = 'скачать этот';
+        button.onclick = () => {
+            console.log(pair);
+            GM_xmlhttpRequest({
+                method: "POST",
+                url: "http://localhost:5000",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                data: JSON.stringify([pair]),
+                onload: function(response) {
+                    console.log(response.responseText);
+                }
+            });
+            button.disabled = true;
+        };
+    }
 
     let button = document.createElement('button');
+    if (!header) {
+        console.log('not a collection?');
+        return;
+    }
+    if (items.length === 0) {
+        let name = document.querySelector('.workshopItemTitle').innerText;
+        let id = window.location.search.match(/\?id=(\d*).*/)[1];
+        items.push({id, name});
+    }
     header.append(button);
-
-    button.innerHTML = 'скачать все';
+    button.innerHTML = 'скачать';
     button.onclick = () => {
+        console.log(items);
         GM_xmlhttpRequest({
             method: "POST",
             url: "http://localhost:5000",
             headers: {
                 "Content-Type": "application/json"
             },
-            data: JSON.stringify(ids),
+            data: JSON.stringify(items),
             onload: function(response) {
                 console.log(response.responseText);
             }
         });
-
         button.disabled = true;
-    }
-
+    };
 })();
