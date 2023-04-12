@@ -17,7 +17,7 @@ def get_steam_workshop_process():
 
 def run_script(items):
     for item in items:
-        cmd = f'workshop_download_item 552100 {item["id"]}\n'.encode('utf-8')
+        cmd = f'workshop_download_item {item["app_id"]} {item["id"]}\n'.encode('utf-8')
         print(item)
         steam.stdin.write(cmd)
         steam.stdin.flush()
