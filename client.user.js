@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         workshop downloader
 // @namespace    gnch
-// @version      0.2
+// @version      0.3
 // @description  weird way to download specific workshop items in bulk
 // @author       genych
 // @match        https://steamcommunity.com/*/*
@@ -12,13 +12,14 @@
 (function() {
     'use strict';
     const get_anch = x => x.querySelector('a.item_link') || x.getElementsByTagName('a')[0];
-    const get_id = x => x.attributes.href.nodeValue.match(/\?id=(\d*).*/)[1];
+    const get_id = x => x.attributes.href.nodeValue.match(/\?id=(\d*).*/).at(1);
 
-    let app_id = document.querySelector('.breadcrumbs > a').href.match(/.*app\/(\d*)/)[1];
+    let app_id = window.location.search.match(/.*appid=(\d*).*/)?.at(1) || document.querySelector('.breadcrumbs > a').href.match(/.*app\/(\d*)/)?.at(1);
+    console.log(app_id);
     let header = document.querySelectorAll(':is(.workshopItemDescriptionTitle, .game_area_purchase_margin)');
     header = header.item(header.length - 1);
     let collection = document.querySelectorAll('.collectionItemDetails');
-    if (collection.lenght === 0) {
+    if (collection.length === 0) {
         collection = document.querySelectorAll('.workshopItem');
     }
 
@@ -34,7 +35,7 @@
         c.append(button);
         button.innerHTML = 'скачать этот';
         button.onclick = () => {
-            console.log(pair);
+            console.log(mod);
             GM_xmlhttpRequest({
                 method: "POST",
                 url: "http://localhost:5000",
@@ -57,7 +58,7 @@
     }
     if (items.length === 0) {
         let name = document.querySelector('.workshopItemTitle').innerText;
-        let id = window.location.search.match(/\?id=(\d*).*/)[1];
+        let id = window.location.search.match(/\?id=(\d*).*/).at(1);
         items.push({app_id, id, name});
     }
     header.append(button);
