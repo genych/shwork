@@ -14,6 +14,7 @@
     const get_anch = x => x.querySelector('a.item_link') || x.getElementsByTagName('a')[0];
     const get_id = x => x.attributes.href.nodeValue.match(/\?id=(\d*).*/)[1];
 
+    let app_id = document.querySelector('.breadcrumbs > a').href.match(/.*app\/(\d*)/)[1];
     let header = document.querySelectorAll(':is(.workshopItemDescriptionTitle, .game_area_purchase_margin)');
     header = header.item(header.length - 1);
     let collection = document.querySelectorAll('.collectionItemDetails');
@@ -26,8 +27,8 @@
         let a = get_anch(c);
         let name = a.innerText;
         let id = get_id(a);
-        let pair = {id, name};
-        items.push(pair);
+        let mod = {app_id, id, name};
+        items.push(mod);
 
         let button = document.createElement('button');
         c.append(button);
@@ -40,7 +41,7 @@
                 headers: {
                     "Content-Type": "application/json"
                 },
-                data: JSON.stringify([pair]),
+                data: JSON.stringify([mod]),
                 onload: function(response) {
                     console.log(response.responseText);
                 }
@@ -57,7 +58,7 @@
     if (items.length === 0) {
         let name = document.querySelector('.workshopItemTitle').innerText;
         let id = window.location.search.match(/\?id=(\d*).*/)[1];
-        items.push({id, name});
+        items.push({app_id, id, name});
     }
     header.append(button);
     button.innerHTML = 'скачать';
