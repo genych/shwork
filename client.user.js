@@ -12,7 +12,7 @@
 (function() {
     'use strict';
     const get_anch = x => x.querySelector('a.item_link') || x.getElementsByTagName('a')[0];
-    const get_id = x => x.attributes.href.nodeValue.replace(/^.*id=/,'').replace(/\D+/, '');
+    const get_id = x => x.attributes.href.nodeValue.match(/\?id=(\d*).*/)[1];
 
     let header = document.querySelectorAll(':is(.workshopItemDescriptionTitle, .game_area_purchase_margin)');
     header = header.item(header.length - 1);
