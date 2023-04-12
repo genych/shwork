@@ -16,7 +16,10 @@
 
     let header = document.querySelectorAll(':is(.workshopItemDescriptionTitle, .game_area_purchase_margin)');
     header = header.item(header.length - 1);
-    let collection = document.querySelectorAll(':is(.collectionItemDetails, .workshopItem)');
+    let collection = document.querySelectorAll('.collectionItemDetails');
+    if (collection.lenght === 0) {
+        collection = document.querySelectorAll('.workshopItem');
+    }
 
     let items = [];
     for (let c of collection) {
